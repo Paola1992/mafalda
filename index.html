@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adventskalender für Mama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6efe2;
+    --ink: #1f2a44;
+    --muted: #5b6478;
+    --red: #c8102e;
+    --red-dark: #9c0c24;
+    --door: #fffaf1;
+    --door-edge: #e4d7c0;
+    --open: #fbe9e7;
+    --locked: #ece4d6;
+    --shadow: 0 2px 0 rgba(31, 42, 68, .12), 0 6px 18px rgba(31, 42, 68, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141a2b;
+      --ink: #f3ece0;
+      --muted: #b4b9c7;
+      --red: #ff4d5e;
+      --red-dark: #e0344a;
+      --door: #1f2740;
+      --door-edge: #2f3958;
+      --open: #3a2330;
+      --locked: #1a2034;
+      --shadow: 0 2px 0 rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Patrick Hand", "Comic Sans MS", system-ui, sans-serif;
+    font-size: 19px;
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  #snow { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  main { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 32px 16px 48px; }
+  header { text-align: center; margin-bottom: 28px; }
+  .bow { width: 64px; height: 36px; display: block; margin: 0 auto 8px; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(30px, 6vw, 48px);
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  h1 span { color: var(--red); }
+  .sub { color: var(--muted); margin: 6px 0 0; font-size: 20px; }
+  .hint { color: var(--muted); font-size: 16px; margin-top: 10px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 12px;
+  }
+  .door {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 2px solid var(--door-edge);
+    border-radius: 14px;
+    background: var(--door);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s ease, border-color .15s ease;
+    padding: 0;
+  }
+  .door:nth-child(3n) { aspect-ratio: 1 / 1.25; }
+  .door:hover:not(.locked), .door:focus-visible { transform: translateY(-2px) rotate(-1deg); border-color: var(--red); outline: none; }
+  .door .num { font-family: "Fraunces", Georgia, serif; font-size: clamp(30px, 8vw, 40px); font-weight: 600; }
+  .door.today { border-color: var(--red); border-width: 3px; }
+  .door.today::after {
+    content: "heute"; position: absolute; top: 6px; right: 8px;
+    font-size: 14px; color: var(--red);
+  }
+  .door.opened { background: var(--open); }
+  .door.opened .num { color: var(--red); }
+  .door.opened::before {
+    content: "♥"; position: absolute; bottom: 6px; right: 10px; color: var(--red); font-size: 16px;
+  }
+  .door.locked { background: var(--locked); cursor: not-allowed; opacity: .7; }
+  .door.locked .num { opacity: .55; }
+
+  dialog {
+    border: none; border-radius: 18px; padding: 0;
+    width: min(560px, calc(100vw - 32px));
+    background: var(--door); color: var(--ink);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+  }
+  dialog::backdrop { background: rgba(20, 26, 43, .55); }
+  .card { padding: 28px 24px 22px; text-align: center; }
+  .card .day { color: var(--red); font-size: 18px; letter-spacing: .04em; }
+  .card blockquote {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(21px, 4.5vw, 26px);
+    line-height: 1.35; margin: 14px 0 12px;
+  }
+  .card .de { color: var(--muted); font-size: 19px; margin: 0 0 14px; }
+  .card .who { font-size: 17px; margin: 0; }
+  .card .note { font-size: 15px; color: var(--muted); margin-top: 10px; }
+  .card .close {
+    margin-top: 20px; font: inherit; font-size: 18px; border: 0; border-radius: 999px;
+    padding: 8px 22px; background: var(--red); color: #fff; cursor: pointer;
+  }
+  .card .close:hover { background: var(--red-dark); }
+  footer { text-align: center; color: var(--muted); font-size: 15px; margin-top: 36px; }
+  @media (prefers-reduced-motion: reduce) { #snow { display: none; } .door { transition: none; } }
+</style>
+</head>
+<body>
+<canvas id="snow" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <svg class="bow" viewBox="0 0 64 36" aria-hidden="true">
+      <path d="M32 18 C20 2, 4 4, 6 18 C4 32, 20 34, 32 18 Z" fill="#c8102e"/>
+      <path d="M32 18 C44 2, 60 4, 58 18 C60 32, 44 34, 32 18 Z" fill="#c8102e"/>
+      <circle cx="32" cy="18" r="5" fill="#9c0c24"/>
+    </svg>
+    <h1>Feliz Navidad, <span>Mamá</span></h1>
+    <p class="sub">24 Türchen mit Mafalda – una por día</p>
+    <p class="hint" id="hint"></p>
+  </header>
+  <div class="grid" id="grid"></div>
+  <footer>Mafalda © Quino. Ein privates Geschenk, mit Liebe gemacht.</footer>
+</main>
+
+<dialog id="dlg">
+  <div class="card">
+    <div class="day" id="dDay"></div>
+    <blockquote id="dEs"></blockquote>
+    <p class="de" id="dDe"></p>
+    <p class="who" id="dWho"></p>
+    <p class="note" id="dNote"></p>
+    <button class="close" id="dClose" type="button">Schließen</button>
+  </div>
+</dialog>
+
+<script>
+/* ============================================================
+   INHALT – hier kannst du alles anpassen.
+   es  = Spanisch (Original), de = deutsche Übersetzung
+   who = wer es sagt
+   note = optionaler kleiner Zusatz
+   ============================================================ */
+const TUERCHEN = {
+  1:  { es: "Como siempre: lo urgente no deja tiempo para lo importante.",
+        de: "Wie immer: Das Dringende lässt keine Zeit für das Wichtige.",
+        who: "Mafalda" },
+  2:  { es: "¡Paren el mundo, que me quiero bajar!",
+        de: "Haltet die Welt an, ich will aussteigen!",
+        who: "Mafalda" },
+  3:  { es: "Sonamos, muchachos: resulta que si uno no se apura a cambiar el mundo, después es el mundo el que lo cambia a uno.",
+        de: "Wir sind erledigt, Leute: Wer sich nicht beeilt, die Welt zu ändern, den ändert hinterher die Welt.",
+        who: "Mafalda" },
+  4:  { es: "Lo malo de la gran familia humana es que todos quieren ser el padre.",
+        de: "Das Schlimme an der großen Menschheitsfamilie ist, dass alle der Vater sein wollen.",
+        who: "Mafalda" },
+  5:  { es: "El problema es que hay más problemólogos que solucionólogos.",
+        de: "Das Problem ist, dass es mehr Problemologen als Lösungologen gibt.",
+        who: "Mafalda" },
+  6:  { es: "Vale por una comida a tu elección. Garantizado: sin sopa.",
+        de: "Gutschein für ein Essen deiner Wahl. Garantiert ohne Suppe.",
+        who: "Ein Mafalda-Moment",
+        note: "Mafalda hasst Suppe – du darfst heute bestimmen, was auf den Tisch kommt." },
+  7:  { es: "Mamá, ¿qué te gustaría ser si vivieras?",
+        de: "Mama, was wärst du gern, wenn du leben würdest?",
+        who: "Mafalda",
+        note: "Mit einem Augenzwinkern – du lebst ganz wunderbar. ♥" },
+  8:  { es: "¿No será que en este mundo hay cada vez más gente y menos personas?",
+        de: "Kann es sein, dass es auf dieser Welt immer mehr Leute und immer weniger Menschen gibt?",
+        who: "Mafalda" },
+  9:  { es: "Vale por una tarde de los Beatles: un disco, un té, vos y yo.",
+        de: "Gutschein für einen Beatles-Nachmittag: eine Platte, ein Tee, du und ich.",
+        who: "Ein Mafalda-Moment",
+        note: "Mafalda liebt die Beatles – und morgen erfährst du, warum." },
+  10: { es: "Si vivir es durar, prefiero una canción de los Beatles a un Long Play de los Boston Pops.",
+        de: "Wenn Leben bloß Dauern heißt, ziehe ich ein Beatles-Lied einer Langspielplatte der Boston Pops vor.",
+        who: "Mafalda" },
+  11: { es: "Dicen que el hombre es un animal de costumbres; más bien de costumbre el hombre es un animal.",
+        de: "Man sagt, der Mensch sei ein Gewohnheitstier – eher ist der Mensch aus Gewohnheit ein Tier.",
+        who: "Mafalda" },
+  12: { es: "No es cierto que todo tiempo pasado fue mejor. Lo que pasaba era que los que estaban peor todavía no se habían dado cuenta.",
+        de: "Es stimmt nicht, dass früher alles besser war. Es war nur so, dass die, denen es schlechter ging, es noch nicht gemerkt hatten.",
+        who: "Mafalda" },
+  13: { es: "Vale por una tarde para vos: yo me ocupo de lo urgente, vos hacé lo importante.",
+        de: "Gutschein für einen Nachmittag nur für dich: Ich kümmere mich ums Dringende, du machst das Wichtige.",
+        who: "Ein Mafalda-Moment",
+        note: "Erinnerst du dich an Türchen 1?" },
+  14: { es: "¿No sería más progresista preguntar dónde vamos a seguir, en vez de dónde vamos a parar?",
+        de: "Wäre es nicht fortschrittlicher zu fragen, wo wir weitermachen, statt wo das alles noch enden soll?",
+        who: "Mafalda" },
+  15: { es: "La sopa es a la niñez lo que el comunismo a la democracia.",
+        de: "Die Suppe ist für die Kindheit, was der Kommunismus für die Demokratie ist.",
+        who: "Mafalda" },
+  16: { es: "No es que no haya bondad: lo que pasa es que anda de incógnito.",
+        de: "Es ist nicht so, dass es keine Güte gibt – sie ist nur inkognito unterwegs.",
+        who: "Mafalda" },
+  17: { es: "Si pudieras viajar a cualquier lugar del globo, ¿adónde irías? Contámelo, y lo planeamos.",
+        de: "Wenn du überall auf dem Globus hinreisen könntest – wohin? Erzähl es mir, und wir planen es.",
+        who: "Ein Mafalda-Moment",
+        note: "Mafaldas liebstes Spielzeug ist ihr Globus." },
+  18: { es: "La vida es linda; lo malo es que muchos confunden lindo con fácil.",
+        de: "Das Leben ist schön; das Dumme ist nur, dass viele schön mit einfach verwechseln.",
+        who: "Mafalda zugeschrieben" },
+  19: { es: "Lo ideal sería tener el corazón en la cabeza y el cerebro en el pecho. Así pensaríamos con amor y amaríamos con sabiduría.",
+        de: "Ideal wäre, das Herz im Kopf und das Gehirn in der Brust zu haben. Dann würden wir mit Liebe denken und mit Weisheit lieben.",
+        who: "Mafalda zugeschrieben" },
+  20: { es: "Vale por un abrazo grande. Se puede canjear ya mismo.",
+        de: "Gutschein für eine große Umarmung. Sofort einlösbar.",
+        who: "Ein Mafalda-Moment" },
+  21: { es: "Cuidemos este planeta, que es el único que tiene chocolate.",
+        de: "Passen wir auf diesen Planeten auf – er ist der einzige mit Schokolade.",
+        who: "Mafalda zugeschrieben" },
+  22: { es: "Esta noche: un libro de Mafalda, una taza de mate y la manta más calentita de la casa.",
+        de: "Heute Abend: ein Mafalda-Buch, eine Tasse Mate und die kuscheligste Decke im Haus.",
+        who: "Ein Mafalda-Moment" },
+  23: { es: "En este mundo hay de todo; lo malo es que está muy mal repartido.",
+        de: "Auf dieser Welt gibt es von allem etwas; das Dumme ist nur, dass es so schlecht verteilt ist.",
+        who: "Mafalda zugeschrieben" },
+  24: { es: "¡Feliz Navidad, mamá! Gracias por enseñarme a mirar el mundo con preguntas, con humor y con mucho amor.",
+        de: "Frohe Weihnachten, Mama! Danke, dass du mir beigebracht hast, die Welt mit Fragen, mit Humor und mit ganz viel Liebe anzuschauen.",
+        who: "Von mir – für dich ♥" },
+};
+
+/* Reihenfolge der Türchen im Raster (durcheinander, wie bei einem echten Kalender) */
+const REIHENFOLGE = [7, 15, 2, 20, 11, 4, 18, 23, 1, 9, 13, 6, 24, 17, 3, 12, 21, 8, 16, 5, 22, 10, 14, 19];
+
+const params = new URLSearchParams(location.search);
+const VORSCHAU = params.has("vorschau") || location.hash === "#vorschau";  // ?vorschau öffnet alles zum Testen
+const STORAGE_KEY = "mafalda-advent-geoeffnet";
+
+function heute() {
+  const d = new Date();
+  // Türchen n darf ab dem n. Dezember geöffnet werden; ab dem 25.12. und im Folgejahr alle.
+  if (d.getFullYear() > 2026) return 24;        // nach Neujahr: alles offen
+  if (d.getMonth() === 11) return d.getDate();  // Dezember 2026
+  return 0;                                     // vor Dezember: alles zu
+}
+
+function ladeGeoeffnet() {
+  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
+  catch { return new Set(); }
+}
+function speichereGeoeffnet(set) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...set])); } catch {}
+}
+
+const geoeffnet = ladeGeoeffnet();
+const tag = VORSCHAU ? 24 : heute();
+const grid = document.getElementById("grid");
+const dlg = document.getElementById("dlg");
+
+const hint = document.getElementById("hint");
+if (VORSCHAU) hint.textContent = "Vorschau-Modus: Alle Türchen sind offen.";
+else if (tag === 0) hint.textContent = "Noch ein bisschen Geduld – am 1. Dezember geht es los.";
+else if (tag >= 24) hint.textContent = "Alle Türchen sind offen. ¡Feliz Navidad!";
+else hint.textContent = `Heute ist der ${tag}. Dezember – Türchen ${tag} wartet auf dich.`;
+
+for (const n of REIHENFOLGE) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "door";
+  b.innerHTML = `<span class="num">${n}</span>`;
+  const offen = n <= tag;
+  if (!offen) {
+    b.classList.add("locked");
+    b.setAttribute("aria-label", `Türchen ${n}, noch geschlossen`);
+  } else {
+    b.setAttribute("aria-label", `Türchen ${n} öffnen`);
+  }
+  if (!VORSCHAU && n === tag && tag <= 24) b.classList.add("today");
+  if (geoeffnet.has(n)) b.classList.add("opened");
+  b.addEventListener("click", () => {
+    if (!offen) { wackeln(b); return; }
+    zeige(n);
+    geoeffnet.add(n); speichereGeoeffnet(geoeffnet);
+    b.classList.add("opened");
+  });
+  grid.appendChild(b);
+}
+
+function wackeln(el) {
+  el.animate(
+    [{ transform: "translateX(0)" }, { transform: "translateX(-5px)" }, { transform: "translateX(5px)" }, { transform: "translateX(0)" }],
+    { duration: 260 }
+  );
+}
+
+function zeige(n) {
+  const t = TUERCHEN[n];
+  document.getElementById("dDay").textContent = `${n}. Dezember`;
+  document.getElementById("dEs").textContent = t.who.startsWith("Mafalda") ? `„${t.es}“` : t.es;
+  document.getElementById("dDe").textContent = t.de;
+  document.getElementById("dWho").textContent = `— ${t.who}`;
+  document.getElementById("dNote").textContent = t.note || "";
+  dlg.showModal();
+}
+document.getElementById("dClose").addEventListener("click", () => dlg.close());
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+
+/* Leichter Schneefall */
+(function schnee() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.getElementById("snow"), ctx = c.getContext("2d");
+  let w, h, flocken;
+  function groesse() {
+    w = c.width = innerWidth; h = c.height = innerHeight;
+    flocken = Array.from({ length: Math.min(90, Math.floor(w / 12)) }, () => ({
+      x: Math.random() * w, y: Math.random() * h, r: 1 + Math.random() * 2.5, v: .3 + Math.random() * .8, d: Math.random() * 6
+    }));
+  }
+  groesse(); addEventListener("resize", groesse);
+  const farbe = matchMedia("(prefers-color-scheme: dark)").matches ? "rgba(255,255,255,.7)" : "rgba(160,170,195,.55)";
+  (function frame(t) {
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = farbe;
+    for (const f of flocken) {
+      f.y += f.v; f.x += Math.sin(t / 1500 + f.d) * .3;
+      if (f.y > h) { f.y = -5; f.x = Math.random() * w; }
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  })(0);
+})();
+</script>
+</body>
+</html>
