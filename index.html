@@ -18,6 +18,8 @@
     --open: #fbe9e7;
     --locked: #ece4d6;
     --shadow: 0 2px 0 rgba(31, 42, 68, .12), 0 6px 18px rgba(31, 42, 68, .08);
+    --paper: #ffffff;
+    --board: #2f4a3a;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -31,6 +33,8 @@
       --open: #3a2330;
       --locked: #1a2034;
       --shadow: 0 2px 0 rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
+      --paper: #26304d;
+      --board: #2f4a3a;
     }
   }
   * { box-sizing: border-box; }
@@ -89,9 +93,10 @@
   }
   .door.opened { background: var(--open); }
   .door.opened .num { color: var(--red); }
-  .door.opened::before {
-    content: "♥"; position: absolute; bottom: 6px; right: 10px; color: var(--red); font-size: 16px;
-  }
+  .door .mini { display: none; }
+  .door.opened .mini { display: block; position: absolute; inset: 14% 12% 30%; }
+  .door.opened .mini svg { width: 100%; height: 100%; }
+  .door.opened .num { position: absolute; bottom: 6px; right: 10px; font-size: 22px; }
   .door.locked { background: var(--locked); cursor: not-allowed; opacity: .7; }
   .door.locked .num { opacity: .55; }
 
@@ -119,12 +124,57 @@
     padding: 8px 22px; background: var(--red); color: #fff; cursor: pointer;
   }
   .card .close:hover { background: var(--red-dark); }
+
+  /* Tusche-Zeichnungen */
+  .art { display: block; width: 100%; height: 100%; overflow: visible; }
+  .art path, .art circle, .art ellipse, .art rect {
+    fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .art .s { fill: var(--paper); }
+  .art .a { fill: var(--red); }
+  .art .b { fill: var(--board); }
+  .art .p { fill: var(--paper); stroke: none; }
+  .door .art .p { fill: var(--open); }
+  .art text { fill: var(--ink); font-family: "Patrick Hand", "Comic Sans MS", sans-serif; }
+  .art text.tw { fill: #fffaf1; }
+  .art .t { font-weight: bold; }
+  .panel {
+    margin: 12px auto 0; width: min(100%, 300px); aspect-ratio: 4 / 3; max-width: 100%;
+    border: 3px solid var(--ink); border-radius: 4px; padding: 14px 18px; background: var(--paper);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .panel.zeichnen path, .panel.zeichnen circle, .panel.zeichnen ellipse, .panel.zeichnen rect {
+    stroke-dasharray: 1; stroke-dashoffset: 1; animation: zeichnen 1.4s ease forwards;
+  }
+  .panel.zeichnen .a, .panel.zeichnen .s, .panel.zeichnen .b, .panel.zeichnen text {
+    animation: zeichnen 1.4s ease forwards, fuellen .6s 1s ease both;
+  }
+  @keyframes zeichnen { to { stroke-dashoffset: 0; } }
+  @keyframes fuellen { from { fill-opacity: 0; } to { fill-opacity: 1; } }
+  .bubble {
+    position: relative; margin: 26px 4px 8px; padding: 14px 18px;
+    background: var(--paper); border: 3px solid var(--ink); border-radius: 26px;
+  }
+  .bubble::after {
+    content: ""; position: absolute; bottom: -16px; left: 22%;
+    border: 14px solid transparent; border-top-color: var(--ink); border-bottom: 0;
+  }
+  .bubble::before {
+    content: ""; position: absolute; bottom: -10px; left: calc(22% + 4px); z-index: 1;
+    border: 10px solid transparent; border-top-color: var(--paper); border-bottom: 0;
+  }
+  .card .bubble blockquote { margin: 0; font-family: "Patrick Hand", "Comic Sans MS", sans-serif; font-size: clamp(22px, 5vw, 27px); line-height: 1.25; }
+  .card .who { text-align: left; padding-left: 14%; margin-top: 4px; }
+  .card .de { margin-top: 14px; }
   footer { text-align: center; color: var(--muted); font-size: 15px; margin-top: 36px; }
-  @media (prefers-reduced-motion: reduce) { #snow { display: none; } .door { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { #snow { display: none; } .door { transition: none; } .panel * { animation: none !important; } }
 </style>
 </head>
 <body>
 <canvas id="snow" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="tusche"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.2"/></filter>
+</svg>
 <main>
   <header>
     <svg class="bow" viewBox="0 0 64 36" aria-hidden="true">
@@ -143,9 +193,10 @@
 <dialog id="dlg">
   <div class="card">
     <div class="day" id="dDay"></div>
-    <blockquote id="dEs"></blockquote>
-    <p class="de" id="dDe"></p>
+    <div class="panel" id="dArt"></div>
+    <div class="bubble"><blockquote id="dEs"></blockquote></div>
     <p class="who" id="dWho"></p>
+    <p class="de" id="dDe"></p>
     <p class="src" id="dSrc"></p>
     <p class="note" id="dNote"></p>
     <button class="close" id="dClose" type="button">Schließen</button>
@@ -252,6 +303,66 @@ const TUERCHEN = {
         note: "Aus voller Kehle vor dem Weihnachtsbaum gesungen. – ¡Feliz Navidad, mamá! ♥" },
 };
 
+/* ============================================================
+   BILDER – eigene Tusche-Zeichnungen (keine Comic-Figuren).
+   class="a" = rote Akzentfläche, class="s" = helle Fläche
+   ============================================================ */
+const GLOBUS = `<circle cx="60" cy="40" r="25" class="s"/><ellipse cx="60" cy="40" rx="11" ry="25"/><path d="M35 40h50M38 28h44M38 52h44"/><path d="M50 22c6 4 4 10-2 12s-4 9 3 10M70 46c-5 2-4 8 2 9"/><path d="M60 65v8M46 80h28M60 73c-4 0-8 3-10 7M60 73c4 0 8 3 10 7"/><path d="M33 40a27 27 0 0 0 54 0"/>`;
+const HERZ = (x, y, s) => `<path class="a" d="M${x} ${y + 6 * s}c${-6 * s} ${-7 * s} ${-16 * s} ${-3 * s} ${-10 * s} ${6 * s}l${10 * s} ${10 * s}l${10 * s} ${-10 * s}c${6 * s} ${-9 * s} ${-4 * s} ${-13 * s} ${-10 * s} ${-6 * s}z"/>`;
+const KALENDER = (inhalt) => `<rect x="34" y="16" width="52" height="58" rx="4" class="s"/><path d="M34 32h52"/><rect x="34" y="16" width="52" height="16" rx="4" class="a"/><path d="M46 10v12M74 10v12"/>${inhalt}`;
+
+const BILDER = {
+  1:  /* Sonnenaufgang, Pfeil nach vorn */
+      `<path d="M8 66h104"/><path class="a" d="M36 66a24 24 0 0 1 48 0z"/><path d="M60 30v-10M38 40l-7-7M82 40l7-7M28 56h-10M92 56h10"/><path d="M40 78h46M78 72l8 6-8 6"/>`,
+  2:  GLOBUS + `<path d="M88 14l4 8 8 1-6 6 2 8-8-4-8 4 2-8-6-6 8-1z" class="a"/>`,
+  3:  /* Megafon */
+      `<path class="s" d="M30 34l44-16v48L30 50z"/><rect x="18" y="34" width="12" height="16" rx="3" class="a"/><path d="M36 50l4 18h8l-3-16M82 30l12-6M84 42h14M82 54l12 6"/>`,
+  4:  /* Kompass */
+      `<circle cx="60" cy="44" r="30" class="s"/><circle cx="60" cy="44" r="24"/><path class="a" d="M60 20l7 24h-14z"/><path d="M60 68l7-24h-14z"/><circle cx="60" cy="44" r="3" class="a"/><path d="M60 8v6M96 44h-6M24 44h6"/><text x="56" y="6" font-size="9" stroke="none" class="t">N</text>`,
+  5:  /* Berg mit gewundenem Weg und Fahne */
+      `<path class="s" d="M10 78l34-50 14 18 14-26 38 58z"/><path d="M62 78c-14-6 10-12-4-20s10-12 0-20" stroke-dasharray="4 5"/><path d="M72 20V6"/><path class="a" d="M72 6l14 5-14 5z"/>`,
+  6:  /* Schokoladentafel mit Biss */
+      `<rect x="36" y="12" width="48" height="68" rx="3" class="s"/><path d="M36 28h48M36 44h48M60 12v32"/><path class="a" d="M36 44h48v33a3 3 0 0 1-3 3H39a3 3 0 0 1-3-3z"/><circle cx="84" cy="12" r="9" class="p"/><circle cx="74" cy="10" r="5" class="p"/><text x="60" y="66" text-anchor="middle" font-size="11" stroke="none" class="tw">chocolate</text>`,
+  7:  /* Wegweiser */
+      `<path d="M60 14v66M44 80h32"/><path class="a" d="M60 22h34l8 7-8 7H60z"/><path class="s" d="M60 42H26l-8 7 8 7h34z"/><path d="M68 29h20M28 49h22"/>`,
+  8:  /* Lokomotive und Floh */
+      `<rect x="40" y="36" width="44" height="24" class="s"/><rect x="72" y="22" width="18" height="38" class="a"/><path d="M48 36V24h8v12M30 60h66"/><circle cx="50" cy="66" r="8"/><circle cx="78" cy="66" r="8"/><path d="M48 22c-4-8 6-10 2-16"/><circle cx="20" cy="40" r="4" class="a"/><path d="M17 43l-4 6M20 44v7M23 43l4 6M18 37l-3-4M22 37l3-4"/>`,
+  9:  /* Zwei Tassen, die anstoßen */
+      `<path class="s" d="M24 34h28l-4 36H28z"/><path class="a" d="M68 34h28l-4 36H72z"/><path d="M52 44c8 0 8 12 0 12M96 44c8 0 8 12 0 12"/><path d="M54 22l6-8 6 8M60 10v-4M48 18l-4-4M72 18l4-4"/>`,
+  10: /* Zwei Menschen Hand in Hand */
+      `<circle cx="40" cy="28" r="8" class="s"/><circle cx="80" cy="28" r="8" class="s"/><path d="M40 36v24M80 36v24M40 60l-8 18M40 60l8 18M80 60l-8 18M80 60l8 18M40 44l-12 10M80 44l12 10M40 44l20 10 20-10"/>` + HERZ(60, 6, 1.1),
+  11: /* Kopf mit Herz */
+      `<path class="s" d="M40 78V62c-10-4-14-14-12-26 2-16 16-26 32-24 18 2 28 18 24 34l6 10-8 2v10H66v10"/>` + HERZ(56, 30, 1.3),
+  12: KALENDER(HERZ(60, 42, 1.4)) + `<text x="40" y="29" font-size="10" stroke="none" class="tw">jeden Tag</text>`,
+  13: /* Wecker */
+      `<circle cx="60" cy="46" r="26" class="s"/><path d="M60 46V30M60 46l12 6"/><circle class="a" cx="38" cy="20" r="9"/><circle class="a" cx="82" cy="20" r="9"/><path d="M42 70l-6 8M78 70l6 8"/>`,
+  14: /* Glühbirne */
+      `<path class="s" d="M60 12c-16 0-26 12-24 26 1 9 8 14 10 22h28c2-8 9-13 10-22 2-14-8-26-24-26z"/><path d="M48 66h24M50 72h20M54 78h12M54 58l6-18 6 18"/><path class="a" d="M18 30l8 2M102 30l-8 2M30 10l6 6M90 10l-6 6"/>`,
+  15: /* Sonnenbrille – Güte inkognito */
+      `<path d="M14 40h92"/><path class="s" d="M22 40c0 14 8 20 18 20s16-8 16-20zM64 40c0 12 6 20 16 20s18-6 18-20z"/>` + HERZ(39, 42, .8) + HERZ(81, 42, .8) + `<path d="M56 44c2-3 6-3 8 0"/>`,
+  16: /* Regenschirm, Sonne kommt raus */
+      `<circle class="a" cx="86" cy="22" r="10"/><path d="M86 6v-4M100 22h4M96 10l3-3"/><path class="s" d="M18 52c4-22 52-22 56 0-6-4-12-4-14 0-4-4-10-4-14 0-4-4-10-4-14 0-4-4-10-4-14 0z"/><path d="M46 52v20c0 6 8 6 8 0"/><path d="M24 64l-2 6M36 70l-2 6" stroke-dasharray="3 4"/>`,
+  17: /* Schallplatte mit Noten */
+      `<circle cx="52" cy="48" r="30"/><circle cx="52" cy="48" r="22"/><circle cx="52" cy="48" r="10" class="a"/><circle cx="52" cy="48" r="2"/><path d="M92 40V18l14-4v20"/><ellipse cx="88" cy="40" rx="5" ry="4" class="a"/><ellipse cx="102" cy="34" rx="5" ry="4" class="a"/>`,
+  18: /* Ein großer Stern zwischen kleinen */
+      `<path class="a" d="M60 14l9 20 22 2-17 15 5 22-19-12-19 12 5-22-17-15 22-2z"/><path d="M18 20h4M20 18v4M100 64h4M102 62v4M16 66h4M18 64v4M98 16h4M100 14v4"/>`,
+  19: /* Sanduhr */
+      `<path d="M36 12h48M36 80h48"/><path class="s" d="M42 12c0 20 16 24 16 34S42 60 42 80h36c0-20-16-24-16-34s16-14 16-34z"/><path class="a" d="M48 80c2-10 8-14 12-14s10 4 12 14z"/><path d="M60 46v14" stroke-dasharray="2 3"/>`,
+  20: GLOBUS + HERZ(60, 32, 1),
+  21: /* Halb Mond, halb Sonne */
+      `<path class="s" d="M60 18a26 26 0 0 0 0 52 20 20 0 0 1 0-52z"/><path class="a" d="M60 18a26 26 0 0 1 0 52z"/><path d="M94 44h10M90 24l7-7M90 64l7 7M60 8v-4M60 80v4"/><path d="M28 24h2M22 40h2M30 60h2"/>`,
+  22: /* Luftballons */
+      `<ellipse cx="44" cy="30" rx="14" ry="17" class="a"/><ellipse cx="74" cy="26" rx="14" ry="17" class="s"/><ellipse cx="62" cy="44" rx="12" ry="15" class="s"/><path d="M44 47c-2 10 12 18 14 32M74 43c0 12-12 20-16 36M62 59c0 8-4 12-4 20"/>`,
+  23: /* Tafel: mi mamá me ama */
+      `<rect x="12" y="10" width="96" height="58" rx="3" class="b"/><path d="M28 68l-6 14M92 68l6 14M40 74h40"/><text x="60" y="34" text-anchor="middle" font-size="12" stroke="none" class="tw">mi mamá me mima</text><text x="60" y="54" text-anchor="middle" font-size="12" stroke="none" class="tw">mi mamá me ama</text>`,
+  24: /* Weihnachtsbaum mit Stern und Noten */
+      `<path class="s" d="M60 16L36 46h12L30 70h60L72 46h12z"/><path d="M60 70v10M48 80h24"/><path class="a" d="M60 4l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/><circle class="a" cx="52" cy="40" r="3"/><circle class="a" cx="68" cy="56" r="3"/><circle class="a" cx="48" cy="62" r="3"/><path d="M98 34V20l10-3v13"/><ellipse cx="95" cy="35" rx="4" ry="3" class="a"/><ellipse cx="105" cy="31" rx="4" ry="3" class="a"/><path d="M16 30V18l8-2"/><ellipse cx="13" cy="31" rx="4" ry="3" class="a"/>`,
+};
+
+function bild(n) {
+  return `<svg class="art" viewBox="0 0 120 90" aria-hidden="true"><g filter="url(#tusche)">${BILDER[n] || ""}</g></svg>`;
+}
+
 /* Reihenfolge der Türchen im Raster (durcheinander, wie bei einem echten Kalender) */
 const REIHENFOLGE = [7, 15, 2, 20, 11, 4, 18, 23, 1, 9, 13, 6, 24, 17, 3, 12, 21, 8, 16, 5, 22, 10, 14, 19];
 
@@ -290,7 +401,7 @@ for (const n of REIHENFOLGE) {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "door";
-  b.innerHTML = `<span class="num">${n}</span>`;
+  b.innerHTML = `<span class="mini">${bild(n)}</span><span class="num">${n}</span>`;
   const offen = n <= tag;
   if (!offen) {
     b.classList.add("locked");
@@ -319,7 +430,13 @@ function wackeln(el) {
 function zeige(n) {
   const t = TUERCHEN[n];
   document.getElementById("dDay").textContent = `${n}. Dezember`;
-  document.getElementById("dEs").textContent = `„${t.es}“`;
+  document.getElementById("dEs").textContent = t.es;
+  const art = document.getElementById("dArt");
+  art.innerHTML = bild(n);
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    art.querySelectorAll("path, circle, ellipse, rect").forEach(el => el.setAttribute("pathLength", "1"));
+    art.classList.remove("zeichnen"); void art.offsetWidth; art.classList.add("zeichnen");
+  }
   document.getElementById("dDe").textContent = t.de;
   document.getElementById("dWho").textContent = `— ${t.who}`;
   document.getElementById("dSrc").textContent = "Quelle: " + (
