@@ -13,8 +13,14 @@ GitHub → Settings → Pages → Branch auswählen → Ordner `/ (root)`. Danac
 ## Inhalte anpassen
 Alle Texte stehen oben im `<script>` im Objekt `TUERCHEN`.
 
-## Hinweis zu den Sprüchen
-- Alle 24 Türchen enthalten Sprüche von Mafalda und ihren Freunden (Felipe, Manolito, Susanita, Miguelito, Libertad).
-- Achtung: „¡Paren el mundo, que me quiero bajar!“ ist **nicht** von Mafalda. Quino hat das selbst dementiert, deshalb ist der Spruch nicht im Kalender.
-- Türchen mit `unsicher: true` (6, 9, 12, 15, 17, 19, 21, 23) sind im Internet verbreitet, aber nicht sicher aus den Original-Comics. Im Kalender steht bei ihnen „Quino zugeschrieben, in den Original-Comics nicht belegt“. Wer einen Mafalda-Sammelband hat, kann sie dort nachschlagen und austauschen.
-- Mafalda © Quino. Die Comiczeichnungen sind bewusst nicht enthalten, weil dieses Repository öffentlich ist.
+## Comics einbetten
+Bei jedem Türchen kann ein Beitrag des **offiziellen** Instagram-Accounts [@mafaldadigital](https://www.instagram.com/mafaldadigital/) eingebettet werden:
+`post: "https://www.instagram.com/p/XXXX/"`. Das Bild bleibt bei Instagram, es wird nichts kopiert.
+Bitte **keine Screenshots oder Bilddateien** ins Repository legen – das wäre eine Urheberrechtsverletzung.
+Die Einbettung funktioniert nur auf der echten Website (GitHub Pages), nicht bei einer lokal geöffneten Datei.
+
+## Quellen
+- 15 Sprüche stammen aus Comics, die der offizielle Account @mafaldadigital gepostet hat. Bei ihnen steht die Nummer der Original-Tira.
+- Die übrigen 9 sind gut belegte, oft zitierte Mafalda-Sprüche.
+- „¡Paren el mundo, que me quiero bajar!“ ist **nicht** von Mafalda (von Quino selbst dementiert) und deshalb nicht enthalten.
+- Mafalda © Quino.
