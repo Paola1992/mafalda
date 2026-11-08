@@ -20,7 +20,6 @@ Bitte **keine Screenshots oder Bilddateien** ins Repository legen – das wäre 
 Die Einbettung funktioniert nur auf der echten Website (GitHub Pages), nicht bei einer lokal geöffneten Datei.
 
 ## Quellen
-- 15 Sprüche stammen aus Comics, die der offizielle Account @mafaldadigital gepostet hat. Bei ihnen steht die Nummer der Original-Tira.
-- Die übrigen 9 sind gut belegte, oft zitierte Mafalda-Sprüche.
+- Alle 24 Sprüche stammen aus Comics, die der offizielle Account @mafaldadigital gepostet hat (Tira-Nummer, wo sie im Comic steht).
 - „¡Paren el mundo, que me quiero bajar!“ ist **nicht** von Mafalda (von Quino selbst dementiert) und deshalb nicht enthalten.
 - Mafalda © Quino.
