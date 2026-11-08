@@ -111,6 +111,7 @@
   }
   .card .de { color: var(--muted); font-size: 19px; margin: 0 0 14px; }
   .card .who { font-size: 17px; margin: 0; }
+  .card .src { font-size: 14px; color: var(--muted); margin: 4px 0 0; font-style: italic; }
   .card .note { font-size: 15px; color: var(--muted); margin-top: 10px; }
   .card .close {
     margin-top: 20px; font: inherit; font-size: 18px; border: 0; border-radius: 999px;
@@ -131,11 +132,11 @@
       <circle cx="32" cy="18" r="5" fill="#9c0c24"/>
     </svg>
     <h1>Feliz Navidad, <span>Mamá</span></h1>
-    <p class="sub">24 Türchen mit Mafalda – una por día</p>
+    <p class="sub">24 Türchen mit Mafalda und ihren Freunden – una por día</p>
     <p class="hint" id="hint"></p>
   </header>
   <div class="grid" id="grid"></div>
-  <footer>Mafalda © Quino. Ein privates Geschenk, mit Liebe gemacht.</footer>
+  <footer>Alle Sprüche: Quino, „Mafalda“ (1964–1973). Mafalda © Quino. Ein privates Geschenk, mit Liebe gemacht.</footer>
 </main>
 
 <dialog id="dlg">
@@ -144,6 +145,7 @@
     <blockquote id="dEs"></blockquote>
     <p class="de" id="dDe"></p>
     <p class="who" id="dWho"></p>
+    <p class="src" id="dSrc"></p>
     <p class="note" id="dNote"></p>
     <button class="close" id="dClose" type="button">Schließen</button>
   </div>
@@ -153,87 +155,88 @@
 /* ============================================================
    INHALT – hier kannst du alles anpassen.
    es  = Spanisch (Original), de = deutsche Übersetzung
-   who = wer es sagt
+   who = wer es sagt (Figur aus Quinos „Mafalda“)
+   unsicher: true = im Internet verbreitet, aber nicht sicher aus den Original-Comics
    note = optionaler kleiner Zusatz
    ============================================================ */
 const TUERCHEN = {
-  1:  { es: "Como siempre: lo urgente no deja tiempo para lo importante.",
-        de: "Wie immer: Das Dringende lässt keine Zeit für das Wichtige.",
+  1:  { es: "Sí, ya sé, hay más problemólogos que solucionólogos, pero ¿qué vamos a hacerle?",
+        de: "Ja, ich weiß, es gibt mehr Problemologen als Lösungologen – aber was sollen wir machen?",
         who: "Mafalda" },
-  2:  { es: "¡Paren el mundo, que me quiero bajar!",
-        de: "Haltet die Welt an, ich will aussteigen!",
-        who: "Mafalda" },
-  3:  { es: "Sonamos, muchachos: resulta que si uno no se apura a cambiar el mundo, después es el mundo el que lo cambia a uno.",
+  2:  { es: "Sonamos, muchachos: resulta que si uno no se apura a cambiar el mundo, después es el mundo el que lo cambia a uno.",
         de: "Wir sind erledigt, Leute: Wer sich nicht beeilt, die Welt zu ändern, den ändert hinterher die Welt.",
         who: "Mafalda" },
-  4:  { es: "Lo malo de la gran familia humana es que todos quieren ser el padre.",
+  3:  { es: "Si vivir es durar, prefiero una canción de los Beatles a un Long Play de los Boston Pops.",
+        de: "Wenn Leben bloß Dauern heißt, ziehe ich ein Beatles-Lied einer Langspielplatte der Boston Pops vor.",
+        who: "Mafalda" },
+  4:  { es: "Nadie puede amasar una fortuna sin hacer harina a los demás.",
+        de: "Niemand kann ein Vermögen kneten, ohne die anderen zu Mehl zu machen.",
+        who: "Manolito" },
+  5:  { es: "Lo malo de la gran familia humana es que todos quieren ser el padre.",
         de: "Das Schlimme an der großen Menschheitsfamilie ist, dass alle der Vater sein wollen.",
         who: "Mafalda" },
-  5:  { es: "El problema es que hay más problemólogos que solucionólogos.",
-        de: "Das Problem ist, dass es mehr Problemologen als Lösungologen gibt.",
-        who: "Mafalda" },
-  6:  { es: "Vale por una comida a tu elección. Garantizado: sin sopa.",
-        de: "Gutschein für ein Essen deiner Wahl. Garantiert ohne Suppe.",
-        who: "Ein Mafalda-Moment",
-        note: "Mafalda hasst Suppe – du darfst heute bestimmen, was auf den Tisch kommt." },
-  7:  { es: "Mamá, ¿qué te gustaría ser si vivieras?",
-        de: "Mama, was wärst du gern, wenn du leben würdest?",
-        who: "Mafalda",
-        note: "Mit einem Augenzwinkern – du lebst ganz wunderbar. ♥" },
+  6:  { es: "Cuidemos este planeta, que es el único que tiene chocolate.",
+        de: "Passen wir auf diesen Planeten auf – er ist der einzige mit Schokolade.",
+        who: "Mafalda", unsicher: true,
+        note: "Zum Nikolaus. ♥" },
+  7:  { es: "¡Hasta mis debilidades son más fuertes que yo!",
+        de: "Sogar meine Schwächen sind stärker als ich!",
+        who: "Felipe" },
   8:  { es: "¿No será que en este mundo hay cada vez más gente y menos personas?",
         de: "Kann es sein, dass es auf dieser Welt immer mehr Leute und immer weniger Menschen gibt?",
         who: "Mafalda" },
-  9:  { es: "Vale por una tarde de los Beatles: un disco, un té, vos y yo.",
-        de: "Gutschein für einen Beatles-Nachmittag: eine Platte, ein Tee, du und ich.",
-        who: "Ein Mafalda-Moment",
-        note: "Mafalda liebt die Beatles – und morgen erfährst du, warum." },
-  10: { es: "Si vivir es durar, prefiero una canción de los Beatles a un Long Play de los Boston Pops.",
-        de: "Wenn Leben bloß Dauern heißt, ziehe ich ein Beatles-Lied einer Langspielplatte der Boston Pops vor.",
-        who: "Mafalda" },
-  11: { es: "Dicen que el hombre es un animal de costumbres; más bien de costumbre el hombre es un animal.",
+  9:  { es: "Cuando sea grande voy a ser intérprete en las Naciones Unidas.",
+        de: "Wenn ich groß bin, werde ich Dolmetscherin bei den Vereinten Nationen.",
+        who: "Mafalda", unsicher: true,
+        note: "Ihr Berufswunsch stammt aus den Comics, der genaue Wortlaut ist aus dem Gedächtnis." },
+  10: { es: "Dicen que el hombre es un animal de costumbres; más bien de costumbre el hombre es un animal.",
         de: "Man sagt, der Mensch sei ein Gewohnheitstier – eher ist der Mensch aus Gewohnheit ein Tier.",
         who: "Mafalda" },
-  12: { es: "No es cierto que todo tiempo pasado fue mejor. Lo que pasaba era que los que estaban peor todavía no se habían dado cuenta.",
-        de: "Es stimmt nicht, dass früher alles besser war. Es war nur so, dass die, denen es schlechter ging, es noch nicht gemerkt hatten.",
-        who: "Mafalda" },
-  13: { es: "Vale por una tarde para vos: yo me ocupo de lo urgente, vos hacé lo importante.",
-        de: "Gutschein für einen Nachmittag nur für dich: Ich kümmere mich ums Dringende, du machst das Wichtige.",
-        who: "Ein Mafalda-Moment",
-        note: "Erinnerst du dich an Türchen 1?" },
-  14: { es: "¿No sería más progresista preguntar dónde vamos a seguir, en vez de dónde vamos a parar?",
-        de: "Wäre es nicht fortschrittlicher zu fragen, wo wir weitermachen, statt wo das alles noch enden soll?",
-        who: "Mafalda" },
-  15: { es: "La sopa es a la niñez lo que el comunismo a la democracia.",
+  11: { es: "Una pulga no puede picar a una locomotora, pero puede llenar de ronchas al maquinista.",
+        de: "Ein Floh kann keine Lokomotive stechen, aber er kann den Lokführer mit Quaddeln übersäen.",
+        who: "Libertad" },
+  12: { es: "No es que no haya bondad: lo que pasa es que anda de incógnito.",
+        de: "Es ist nicht so, dass es keine Güte gibt – sie ist nur inkognito unterwegs.",
+        who: "Mafalda", unsicher: true },
+  13: { es: "La sopa es a la niñez lo que el comunismo a la democracia.",
         de: "Die Suppe ist für die Kindheit, was der Kommunismus für die Demokratie ist.",
         who: "Mafalda" },
-  16: { es: "No es que no haya bondad: lo que pasa es que anda de incógnito.",
-        de: "Es ist nicht so, dass es keine Güte gibt – sie ist nur inkognito unterwegs.",
+  14: { es: "Mamá, ¿qué te gustaría ser si vivieras?",
+        de: "Mama, was wärst du gern, wenn du leben würdest?",
+        who: "Mafalda",
+        note: "Mit einem Augenzwinkern – du lebst ganz wunderbar. ♥" },
+  15: { es: "Cuando sea grande me voy a casar y voy a tener muchos hijitos.",
+        de: "Wenn ich groß bin, heirate ich und bekomme ganz viele Kinderchen.",
+        who: "Susanita", unsicher: true,
+        note: "Susanitas Lebenstraum aus den Comics, der genaue Wortlaut ist aus dem Gedächtnis." },
+  16: { es: "¿Por dónde hay que empujar este país para llevarlo adelante?",
+        de: "Wo muss man dieses Land anschieben, damit es vorankommt?",
         who: "Mafalda" },
-  17: { es: "Si pudieras viajar a cualquier lugar del globo, ¿adónde irías? Contámelo, y lo planeamos.",
-        de: "Wenn du überall auf dem Globus hinreisen könntest – wohin? Erzähl es mir, und wir planen es.",
-        who: "Ein Mafalda-Moment",
-        note: "Mafaldas liebstes Spielzeug ist ihr Globus." },
-  18: { es: "La vida es linda; lo malo es que muchos confunden lindo con fácil.",
+  17: { es: "La vida es linda; lo malo es que muchos confunden lindo con fácil.",
         de: "Das Leben ist schön; das Dumme ist nur, dass viele schön mit einfach verwechseln.",
-        who: "Mafalda zugeschrieben" },
-  19: { es: "Lo ideal sería tener el corazón en la cabeza y el cerebro en el pecho. Así pensaríamos con amor y amaríamos con sabiduría.",
+        who: "Mafalda", unsicher: true },
+  18: { es: "Yo diría que nos pusiéramos todos contentos sin preguntar por qué.",
+        de: "Ich würde sagen, wir freuen uns alle einfach, ohne zu fragen, warum.",
+        who: "Miguelito" },
+  19: { es: "Amo a la humanidad; lo que me revienta es la gente.",
+        de: "Ich liebe die Menschheit – was mich auf die Palme bringt, sind die Leute.",
+        who: "Susanita", unsicher: true },
+  20: { es: "No es cierto que todo tiempo pasado fue mejor. Lo que pasaba era que los que estaban peor todavía no se habían dado cuenta.",
+        de: "Es stimmt nicht, dass früher alles besser war. Es war nur so, dass die, denen es schlechter ging, es noch nicht gemerkt hatten.",
+        who: "Mafalda" },
+  21: { es: "Lo ideal sería tener el corazón en la cabeza y el cerebro en el pecho. Así pensaríamos con amor y amaríamos con sabiduría.",
         de: "Ideal wäre, das Herz im Kopf und das Gehirn in der Brust zu haben. Dann würden wir mit Liebe denken und mit Weisheit lieben.",
-        who: "Mafalda zugeschrieben" },
-  20: { es: "Vale por un abrazo grande. Se puede canjear ya mismo.",
-        de: "Gutschein für eine große Umarmung. Sofort einlösbar.",
-        who: "Ein Mafalda-Moment" },
-  21: { es: "Cuidemos este planeta, que es el único que tiene chocolate.",
-        de: "Passen wir auf diesen Planeten auf – er ist der einzige mit Schokolade.",
-        who: "Mafalda zugeschrieben" },
-  22: { es: "Esta noche: un libro de Mafalda, una taza de mate y la manta más calentita de la casa.",
-        de: "Heute Abend: ein Mafalda-Buch, eine Tasse Mate und die kuscheligste Decke im Haus.",
-        who: "Ein Mafalda-Moment" },
+        who: "Mafalda", unsicher: true },
+  22: { es: "¿No sería más progresista preguntar dónde vamos a seguir, en vez de dónde vamos a parar?",
+        de: "Wäre es nicht fortschrittlicher zu fragen, wo wir weitermachen, statt wo das alles noch enden soll?",
+        who: "Mafalda" },
   23: { es: "En este mundo hay de todo; lo malo es que está muy mal repartido.",
         de: "Auf dieser Welt gibt es von allem etwas; das Dumme ist nur, dass es so schlecht verteilt ist.",
-        who: "Mafalda zugeschrieben" },
-  24: { es: "¡Feliz Navidad, mamá! Gracias por enseñarme a mirar el mundo con preguntas, con humor y con mucho amor.",
-        de: "Frohe Weihnachten, Mama! Danke, dass du mir beigebracht hast, die Welt mit Fragen, mit Humor und mit ganz viel Liebe anzuschauen.",
-        who: "Von mir – für dich ♥" },
+        who: "Mafalda", unsicher: true },
+  24: { es: "Como siempre: lo urgente no deja tiempo para lo importante.",
+        de: "Wie immer: Das Dringende lässt keine Zeit für das Wichtige.",
+        who: "Mafalda",
+        note: "Heute ist nur das Wichtige dran: ¡Feliz Navidad, mamá! ♥" },
 };
 
 /* Reihenfolge der Türchen im Raster (durcheinander, wie bei einem echten Kalender) */
@@ -303,9 +306,12 @@ function wackeln(el) {
 function zeige(n) {
   const t = TUERCHEN[n];
   document.getElementById("dDay").textContent = `${n}. Dezember`;
-  document.getElementById("dEs").textContent = t.who.startsWith("Mafalda") ? `„${t.es}“` : t.es;
+  document.getElementById("dEs").textContent = `„${t.es}“`;
   document.getElementById("dDe").textContent = t.de;
   document.getElementById("dWho").textContent = `— ${t.who}`;
+  document.getElementById("dSrc").textContent = t.unsicher
+    ? "Quelle: Quino zugeschrieben, in den Original-Comics nicht belegt"
+    : "Quelle: Quino, „Mafalda“ (1964–1973)";
   document.getElementById("dNote").textContent = t.note || "";
   dlg.showModal();
 }

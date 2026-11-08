@@ -11,9 +11,10 @@ Ein Online-Adventskalender mit 24 Türchen: Mafalda-Sprüche (Spanisch im Origin
 GitHub → Settings → Pages → Branch auswählen → Ordner `/ (root)`. Danach ist der Kalender unter `https://<benutzername>.github.io/<repo>/` erreichbar.
 
 ## Inhalte anpassen
-Alle Texte stehen oben im `<script>` im Objekt `TUERCHEN`. Türchen 6, 9, 13, 17, 20 und 22 (Gutscheine) und 24 (persönliche Nachricht) sind Platzhalter: bitte selbst anpassen.
+Alle Texte stehen oben im `<script>` im Objekt `TUERCHEN`.
 
 ## Hinweis zu den Sprüchen
-- Bei den Türchen mit **„Mafalda“** ist die Zuordnung zu Quinos Comics ziemlich sicher.
-- Bei den Türchen mit **„Mafalda zugeschrieben“** (18, 19, 21, 23) handelt es sich um Sprüche, die im Internet weit verbreitet sind, aber nicht sicher aus den Original-Comics stammen. Wenn du einen Mafalda-Sammelband hast, kannst du sie damit vergleichen oder austauschen.
-- Mafalda © Quino. Der Kalender ist als privates Geschenk gedacht und enthält bewusst keine Zeichnungen der Figuren.
+- Alle 24 Türchen enthalten Sprüche von Mafalda und ihren Freunden (Felipe, Manolito, Susanita, Miguelito, Libertad).
+- Achtung: „¡Paren el mundo, que me quiero bajar!“ ist **nicht** von Mafalda. Quino hat das selbst dementiert, deshalb ist der Spruch nicht im Kalender.
+- Türchen mit `unsicher: true` (6, 9, 12, 15, 17, 19, 21, 23) sind im Internet verbreitet, aber nicht sicher aus den Original-Comics. Im Kalender steht bei ihnen „Quino zugeschrieben, in den Original-Comics nicht belegt“. Wer einen Mafalda-Sammelband hat, kann sie dort nachschlagen und austauschen.
+- Mafalda © Quino. Die Comiczeichnungen sind bewusst nicht enthalten, weil dieses Repository öffentlich ist.
